@@ -256,6 +256,8 @@ body {
 ## OUTPUT:
 
 ![image](https://github.com/Jeevithha/standard-calculator/assets/123623197/0aa46a7f-04ba-4176-9d0e-798a12d6fe3a)
+
+
 ![image](https://github.com/Jeevithha/standard-calculator/assets/123623197/5b6ef25a-e6b2-4732-9a67-d87e9946d06d)
 
 ## Result:
