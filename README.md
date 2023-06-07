@@ -23,141 +23,240 @@ Publish the website in the given URL
 ```
    Developed by: JEEVITHA S
   RegisterNumber:212222100016
-```
-calc.html:
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="/static/CSS/style.css">
-    <title>Calculator</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Calculator</title>
+  <link href="styles.css" rel="stylesheet">
+  <script src="script.js" defer></script>
 </head>
-
 <body>
-    <div class="container">
-        <h1>Calculator</h1>
-
-        <div class="calculator">
-            <input type="text" name="screen" id="screen">
-            <table>
-                <tr>
-                    <td><button>(</button></td>
-                    <td><button>)</button></td>
-                    <td><button>C</button></td>
-                    <td><button>%</button></td>
-                </tr>
-                <tr>
-                    <td><button>7</button></td>
-                    <td><button>8</button></td>
-                    <td><button>9</button></td>
-                    <td><button>X</button></td>
-                </tr>
-                <tr>
-                    <td><button>4</button></td>
-                    <td><button>5</button></td>
-                    <td><button>6</button></td>
-                    <td><button>-</button></td>
-                </tr>
-                <tr>
-                    <td><button>1</button></td>
-                    <td><button>2</button></td>
-                    <td><button>3</button></td>
-                    <td><button>+</button></td>
-                </tr>
-                <tr>
-                    <td><button>0</button></td>
-                    <td><button>.</button></td>
-                    <td><button>/</button></td>
-                    <td><button>=</button></td>
-                </tr>
-            </table>
-        </div>
+  <div class="calculator-grid">
+    <div class="output">
+      <div data-previous-operand class="previous-operand"></div>
+      <div data-current-operand class="current-operand"></div>
     </div>
-
+    <button data-all-clear class="span-two">AC</button>
+    <button data-delete>DEL</button>
+    <button data-operation>÷</button>
+    <button data-number>1</button>
+    <button data-number>2</button>
+    <button data-number>3</button>
+    <button data-operation>*</button>
+    <button data-number>4</button>
+    <button data-number>5</button>
+    <button data-number>6</button>
+    <button data-operation>+</button>
+    <button data-number>7</button>
+    <button data-number>8</button>
+    <button data-number>9</button>
+    <button data-operation>-</button>
+    <button data-number>.</button>
+    <button data-number>0</button>
+    <button data-equals class="span-two">=</button>
+  </div>
 </body>
-<script src="/static/JS/index.js"></script>
-
 </html>
 
-##style.css:
+<script>
+    class Calculator {
+  constructor(previousOperandTextElement, currentOperandTextElement) {
+    this.previousOperandTextElement = previousOperandTextElement
+    this.currentOperandTextElement = currentOperandTextElement
+    this.clear()
+  }
 
-.container{
-    text-align: center;
-    margin-top:23px
+  clear() {
+    this.currentOperand = ''
+    this.previousOperand = ''
+    this.operation = undefined
+  }
+
+  delete() {
+    this.currentOperand = this.currentOperand.toString().slice(0, -1)
+  }
+
+  appendNumber(number) {
+    if (number === '.' && this.currentOperand.includes('.')) return
+    this.currentOperand = this.currentOperand.toString() + number.toString()
+  }
+
+  chooseOperation(operation) {
+    if (this.currentOperand === '') return
+    if (this.previousOperand !== '') {
+      this.compute()
+    }
+    this.operation = operation
+    this.previousOperand = this.currentOperand
+    this.currentOperand = ''
+  }
+
+  compute() {
+    let computation
+    const prev = parseFloat(this.previousOperand)
+    const current = parseFloat(this.currentOperand)
+    if (isNaN(prev) || isNaN(current)) return
+    switch (this.operation) {
+      case '+':
+        computation = prev + current
+        break
+      case '-':
+        computation = prev - current
+        break
+      case '*':
+        computation = prev * current
+        break
+      case '÷':
+        computation = prev / current
+        break
+      default:
+        return
+    }
+    this.currentOperand = computation
+    this.operation = undefined
+    this.previousOperand = ''
+  }
+
+  getDisplayNumber(number) {
+    const stringNumber = number.toString()
+    const integerDigits = parseFloat(stringNumber.split('.')[0])
+    const decimalDigits = stringNumber.split('.')[1]
+    let integerDisplay
+    if (isNaN(integerDigits)) {
+      integerDisplay = ''
+    } else {
+      integerDisplay = integerDigits.toLocaleString('en', { maximumFractionDigits: 0 })
+    }
+    if (decimalDigits != null) {
+      return `${integerDisplay}.${decimalDigits}`
+    } else {
+      return integerDisplay
+    }
+  }
+
+  updateDisplay() {
+    this.currentOperandTextElement.innerText =
+      this.getDisplayNumber(this.currentOperand)
+    if (this.operation != null) {
+      this.previousOperandTextElement.innerText =
+        `${this.getDisplayNumber(this.previousOperand)} ${this.operation}`
+    } else {
+      this.previousOperandTextElement.innerText = ''
+    }
+  }
 }
 
-table{
-    margin: auto;
+
+const numberButtons = document.querySelectorAll('[data-number]')
+const operationButtons = document.querySelectorAll('[data-operation]')
+const equalsButton = document.querySelector('[data-equals]')
+const deleteButton = document.querySelector('[data-delete]')
+const allClearButton = document.querySelector('[data-all-clear]')
+const previousOperandTextElement = document.querySelector('[data-previous-operand]')
+const currentOperandTextElement = document.querySelector('[data-current-operand]')
+
+const calculator = new Calculator(previousOperandTextElement, currentOperandTextElement)
+
+numberButtons.forEach(button => {
+  button.addEventListener('click', () => {
+    calculator.appendNumber(button.innerText)
+    calculator.updateDisplay()
+  })
+})
+
+operationButtons.forEach(button => {
+  button.addEventListener('click', () => {
+    calculator.chooseOperation(button.innerText)
+    calculator.updateDisplay()
+  })
+})
+
+equalsButton.addEventListener('click', button => {
+  calculator.compute()
+  calculator.updateDisplay()
+})
+
+allClearButton.addEventListener('click', button => {
+  calculator.clear()
+  calculator.updateDisplay()
+})
+
+deleteButton.addEventListener('click', button => {
+  calculator.delete()
+  calculator.updateDisplay()
+})
+
+</script>
+
+
+<style>
+*, *::before, *::after {
+  box-sizing: border-box;
+  font-family: Gotham Rounded, sans-serif;
+  font-weight: normal;
 }
 
-input{
-    border-radius: 21px;
-    border: 5px solid #53e236;
-    font-size:34px;
-    height: 65px;
-    width: 456px;
+body {
+  padding: 0;
+  margin: 0;
+  background:(to right,lightsteelblue,lemonchiffon);
 }
 
-button{
-    border-radius: 20px;
-    font-size: 40px;
-    background: whitesmoke;
-    width: 102px;
-    height: 90px;
-    margin: 6px;
+.calculator-grid {
+  display: grid;
+  justify-content: center;
+  align-content: center;
+  min-height: 100vh;
+  grid-template-columns: repeat(4, 100px);
+  grid-template-rows: minmax(120px, auto) repeat(5, 100px);
 }
 
-.calculator{ 
-    border: 4px solid #d61a13;
-    background-color: #1170ec ;
-    padding: 23px;
-    border-radius: 53px;
-    display: inline-block;
-    
+.calculator-grid > button {
+  cursor: pointer;
+  font-size: 2rem;
+  border: 1px solid white;
+  outline: none;
+  background-color: lightgrey;
 }
 
-h1{
-    font-size: 28px;
-    font-family: 'Courier New', Courier, monospace;
+.calculator-grid > button:hover {
+  background-color:lightyellow;
 }
 
-##index.js:
-
-let screen = document.getElementById('screen');
-buttons = document.querySelectorAll('button');
-let screenValue = '';
-for (item of buttons) {
-    item.addEventListener('click', (e) => {
-        buttonText = e.target.innerText;
-        console.log('Button text is ', buttonText);
-        if (buttonText == 'X') {
-            buttonText = '*';
-            screenValue += buttonText;
-            screen.value = screenValue;
-        }
-        else if (buttonText == 'C') {
-            screenValue = "";
-            screen.value = screenValue;
-        }
-        else if (buttonText == '=') {
-            screen.value = eval(screenValue);
-        }
-        else {
-            screenValue += buttonText;
-            screen.value = screenValue;
-        }
-
-    })
+.span-two {
+  grid-column: span 2;
 }
+
+.output {
+  grid-column: 1 / -1;
+  background-color: rgba(0, 0, 0, .75);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  flex-direction: column;
+  padding: 10px;
+  word-wrap: break-word;
+  word-break: break-all;
+}
+
+.output .previous-operand {
+  color:royalblue;
+  font-size: 1.5rem;
+}
+
+.output .current-operand {
+  color: white;
+  font-size: 2.5rem;
+}
+</style>
 ```
 ## OUTPUT:
-![image](https://github.com/Jeevithha/standard-calculator/assets/123623197/ebc9d76b-1bce-4c4d-be02-8d2092f025a8)
-![image](https://github.com/Jeevithha/standard-calculator/assets/123623197/429f9a59-52d1-4e25-b5e1-5c5a766b22f6)
-![image](https://github.com/Jeevithha/standard-calculator/assets/123623197/1c601b6a-b44d-4dc1-88a3-87371915a038)
+
+![image](https://github.com/Jeevithha/standard-calculator/assets/123623197/0aa46a7f-04ba-4176-9d0e-798a12d6fe3a)
+
 
 ## Result:
 The program for creating a simple calculator using javascript is executed successfully.
