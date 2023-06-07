@@ -21,10 +21,10 @@ Publish the website in the given URL
 
 ## PROGRAM :
 ```
- ##  Developed by: JEEVITHA S
- ##  RegisterNumber:212222100016
+   Developed by: JEEVITHA S
+  RegisterNumber:212222100016
 ```
-##calc.html:
+calc.html:
 
 <!DOCTYPE html>
 <html lang="en">
